@@ -577,18 +577,55 @@
       try { return JSON.parse(localStorage.getItem(USER_KEY) || '""').name || ''; }
       catch (e) { return ''; }
     }
-    function renderWhoami() {
-      $('whoami').textContent = whoami() || '–';
+
+    function saveWhoami(name) {
+      try {
+        localStorage.setItem(USER_KEY, JSON.stringify({ name: name.trim() }));
+        return true;
+      } catch (e) {
+        flash('⚠ Nu s-a putut salva numele — browser-ul blochează localStorage (mod incognito sau setări de confidențialitate).');
+        return false;
+      }
     }
-    $('btnWho').onclick = function () {
+
+    function renderWhoami() {
+      var name = whoami();
+      var el = $('whoami');
+      var btn = $('btnWho');
+      if (name) {
+        el.textContent = name;
+        el.style.cursor = 'default';
+        el.classList.remove('whoami-empty');
+        btn.textContent = 'schimbă';
+        btn.style.display = '';
+      } else {
+        el.textContent = '⬆ apasă aici ca să-ți pui numele';
+        el.style.cursor = 'pointer';
+        el.classList.add('whoami-empty');
+        btn.style.display = 'none';
+      }
+    }
+
+    function openNamePrompt() {
       var name = prompt('Sub ce nume să apară rulările tale?', whoami());
       if (name === null) return;
       if (!name.trim()) return flash('Numele nu poate fi gol.');
-      try { localStorage.setItem(USER_KEY, JSON.stringify({ name: name.trim() })); } catch (e) {}
-      renderWhoami();
-      flash('Rulările se înregistrează acum ca „' + whoami() + '”.');
-    };
+      if (saveWhoami(name)) {
+        renderWhoami();
+        flash('Rulările se înregistrează acum ca „' + whoami() + '”.');
+      }
+    }
+
+    $('btnWho').onclick = openNamePrompt;
+    $('whoami').onclick = openNamePrompt;
     renderWhoami();
+
+    /* Primă vizită fără nume: solicită automat după 1s */
+    if (!whoami()) {
+      setTimeout(function () {
+        if (!whoami()) openNamePrompt();
+      }, 1000);
+    }
 
     $('patternVersion').textContent = ZP.PATTERN_VERSION;
     recompute();
