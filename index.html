@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Asistent Tipar Templul Zodiac – Metin2 Nivelul 39</title>
+  <meta name="description" content="Înregistrează care Metin a fost corect pe fiecare nivel bonus al Templului Zodiac și primește o sugestie pentru Nivelul 39 — decizia care determină Negustorul Zodiac." />
+  <meta name="keywords" content="Metin2, Templul Zodiac, Nivel bonus, Negustor Zodiac, Nivelul 39, Maimuță, Câine, Zodiac Temple" />
+  <meta name="author" content="Jogoe" />
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <link rel="stylesheet" href="app.css" />
+</head>
+<body>
+  <header>
+    <div class="header-left">
+      <h1>Tipar Zodiac <span class="subtle">Asistent Nivelul-39 Templul Zodiac</span></h1>
+    </div>
+    <p class="page-intro">
+      Înregistrează care Metin a fost <strong>corect</strong> pe fiecare nivel bonus. Pe Nivelul&nbsp;39 asistentul îți sugerează
+      ce să lovești — singura decizie care determină <strong>Negustorul Zodiac</strong>.
+    </p>
+    <div class="header-meta">
+      <span class="whoami">înregistrat ca <b id="whoami">–</b> <button id="btnWho" class="link-btn" type="button">schimbă</button></span>
+      <span class="version">Tipar · <span id="patternVersion">–</span></span>
+    </div>
+  </header>
+
+  <!-- vizibil doar când scripturile nu pornesc — niciodată mai un panou gol tăcut -->
+  <div id="bootError" class="boot-error" hidden></div>
+
+  <div class="page">
+  <main>
+
+    <!-- STÂNGA: Ce se știe + Date -->
+    <aside class="panel">
+      <div class="info-block">
+        <div class="label">Ce se știe cu siguranță</div>
+        <ul class="known">
+          <li>Niveluri bonus: <b>7, 14, 21, 28, 35–39</b>. 14 și 28 sunt tipul statuie — fără alegere.</li>
+          <li><b>7 și 21 sunt multi-nivel</b>: dacă lovești greșit, se termină imediat.</li>
+          <li>Pe <b>37–39 este Maimuță contra Câine</b>.</li>
+          <li>Wiki-ul DE menționează exact <b>50%</b> șansă de reușită.</li>
+          <li>Greșit pe 35–38 costă doar bonusul — <b>treci mai departe oricum</b>.</li>
+          <li>Greșit pe <b>39</b> înseamnă fără Nivelul 40 și <b>fără Negustor</b>.</li>
+          <li>Nicio sursă publică în nicio limbă nu demonstrează un tipar. Totul anecdotic, n&nbsp;&lt;&nbsp;10.</li>
+        </ul>
+        <p class="known-foot">De aceea există asta: să adunăm suficiente date curate pentru a găsi dezechilibrul sau a îngropa teoria.</p>
+      </div>
+
+      <div class="info-block">
+        <div class="label">Datele tale</div>
+        <div class="button-row">
+          <button id="btnCopyExcel" class="action-btn primary" type="button">📋 Copiază pentru Excel</button>
+        </div>
+        <div class="button-row">
+          <button id="btnExportCsv"  class="action-btn" type="button">Export CSV</button>
+          <button id="btnExportJson" class="action-btn" type="button">Export JSON</button>
+        </div>
+        <div class="button-row">
+          <button id="btnImport" class="action-btn" type="button">Import JSON</button>
+          <button id="btnReset"  class="action-btn danger" type="button">Golește jurnalul</button>
+        </div>
+        <input id="fileImport" type="file" accept="application/json,.json" hidden />
+        <p class="store-note">
+          Stă în acest browser (<code>localStorage</code>) — supraviețuiește reîncărcării, dar este valabil doar per browser și dispozitiv.
+          <b>Copiază pentru Excel</b> pune toate rulările în clipboard, gata de lipire.
+        </p>
+      </div>
+
+
+    </aside>
+
+    <!-- MIJLOC: Introducere pe o singură pagină -->
+    <section class="board-panel">
+      <div class="entry">
+
+        <div class="label nomargin floors-label">Care Metin a fost corect?</div>
+        <div id="floorRows" class="floor-rows"></div>
+
+        <div id="targetBox" class="target-box"></div>
+
+        <div class="button-row center">
+          <button id="btnSave"  class="action-btn primary big" type="button" disabled>Salvează rularea</button>
+          <button id="btnClearForm" class="action-btn" type="button">Golește formularul</button>
+        </div>
+        <div id="flash" class="flash"></div>
+      </div>
+
+      <div class="info-block recent-block">
+        <div class="label">Ultimele rulări <span id="recentCount" class="dim"></span></div>
+        <div id="recent" class="recent"></div>
+      </div>
+    </section>
+
+    <!-- DREAPTA: Statistici -->
+    <aside class="panel">
+      <div class="info-block">
+        <div class="label">Cifrele tale</div>
+        <ul class="score">
+          <li><span class="ss-k">Rulări înregistrate</span><span class="stat-v" id="statRuns">0</span></li>
+          <li><span class="ss-k">Negustor atins</span><span class="stat-v" id="statMerchant">—</span></li>
+          <li><span class="ss-k">Asistent a avut dreptate</span><span class="stat-v" id="statAcc">—</span></li>
+          <li class="ss-margin"><span class="ss-k">Avans față de 50/50</span><span class="stat-v" id="statEdge">lipsă date</span></li>
+        </ul>
+        <p class="model-note">Dacă avansul rămâne la 0 după câteva sute de rulări, mecanica este aleatorie — și asta o putem demonstra.</p>
+      </div>
+
+      <div class="info-block">
+        <div class="label">Animalul corect per nivel</div>
+        <div class="dist-legend"><span><i class="seg-affe"></i> Maimuță</span><span><i class="seg-hund"></i> Câine</span></div>
+        <div id="dist" class="dist"></div>
+        <p class="model-note">La 7 și 21 fiecare pas contează ca observație separată.</p>
+      </div>
+
+      <div class="info-block">
+        <div class="label">Nivelul 38 → Nivelul 39</div>
+        <div id="cond" class="cond"></div>
+        <p class="model-note">Cea mai simplă condiție de verificat. Un dezechilibru real apare aici primul.</p>
+      </div>
+    </aside>
+
+  </main>
+  </div>
+
+  <script src="patterns.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
